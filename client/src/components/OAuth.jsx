@@ -23,7 +23,7 @@ function OAuth() {
               })
             })
             const data = await res.json();
-            console.log("data",data)
+            // console.log("data",data)
             dispatch(signInSuccess(data))
         } catch (error) {
             console.log("couldn't connect with google",error)
