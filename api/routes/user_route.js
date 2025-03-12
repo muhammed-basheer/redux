@@ -1,8 +1,10 @@
 import e from "express";
-import { test } from "../controllers/user_controller.js";
+import { test,updateUser } from "../controllers/user_controller.js";
+import { verifyToken } from "../utils/verifyUser.js";
 
 const router = e.Router();
 
-router.get('/',test)
+router.get('/',test);
+router.post('/update/:id',verifyToken, updateUser)
 
 export default router
