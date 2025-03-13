@@ -7,30 +7,31 @@ export const test = (req,res)=>{
 }
 
 
-export const updateUser = async(req,res,next)=>{
-    if(req.user.id !== req.params.id){
-        return next(errorHandling)
-    }
-    try {
-        
-        if(req.body.password){
-            req.body.password = bcryptjs.hashSync(req.body.password,10)
-         }
+export const updateUser = async (req, res, next) => {
+  if (req.user.id !== req.params.id) {
+    return next(errorHandling(403, "Unauthorized"));
+  }
 
-         const updateUser = await User.findByIdAndUpdate(
-            req.params.id,{
-                $set : {
-                    username : req.body.username,
-                    email    : req.body.email,
-                    password : req.body.password,
-                    profilePicture: req.body.profilePicture
-                }
-            },{new:true}
-         )
-         const {password,...rest}   =updateUser._doc;
-         res.status(200).json(rest)
-
-    } catch (error) {
-        
+  try {
+    const updateFields = {};
+    if (req.body.username) updateFields.username = req.body.username;
+    if (req.body.email) updateFields.email = req.body.email;
+    if (req.body.password) {
+      updateFields.password = bcryptjs.hashSync(req.body.password, 10);
     }
-}
+    if (req.body.profilePicture) updateFields.profilePicture = req.body.profilePicture; // ✅ Ensure profile picture updates
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: updateFields }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const { password, ...rest } = updatedUser._doc;
+    res.status(200).json(rest);
+
+  } catch (error) {
+    console.error(error);
+    next(errorHandling(500, "Something went wrong"));
+  }
+};
