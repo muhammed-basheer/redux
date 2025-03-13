@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { deleteUserFailure, deleteUserStart, deleteUserSuccess, updateUserFailure,updateUserStart,updateUserSuccess } from "../redux/user/userSlice";
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, updateUserFailure,updateUserStart,updateUserSuccess,signOut } from "../redux/user/userSlice";
 
 function Profile() {
   const dispatch = useDispatch()
@@ -101,6 +101,14 @@ function Profile() {
     }
   }
 
+  const handleSignOut = async()=>{
+    try {
+      await fetch('/api/auth/signout');
+      dispatch(signOut())
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -158,7 +166,7 @@ function Profile() {
           </button>
           <div className="flex justify-between">
             <span onClick={handleDeleteAccount} className="text-red-600 cursor-pointer">delete account</span>
-            <span className="text-red-600 cursor-pointer">sign out</span>
+            <span onClick={handleSignOut} className="text-red-600 cursor-pointer">sign out</span>
           </div>
         </form>
       </div>
