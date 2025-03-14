@@ -6,12 +6,15 @@ dotenv.config();
 
 import user_route from './routes/user_route.js';
 import auth_route from './routes/auth_route.js';
+import adminRoutes from './routes/adminRoutes.js'
+
 
 const app = express();
 
 app.use(express.json());  
 app.use(cookieParser());  
 
+app.use('/api/admin', adminRoutes);
 app.use('/api/user', user_route);
 app.use('/api/auth', auth_route);
 

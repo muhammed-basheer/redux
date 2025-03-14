@@ -91,3 +91,49 @@ export const signup = async(req,res,next)=>{
   export const signout = (req,res)=>{
     res.clearCookie('access_token').status(200).json("Signout Success")
   }
+
+
+  
+  export const adminSignIn = async (req, res) => {
+      const { email, password } = req.body;
+  
+      try {
+          // Find admin by email and check if they are an admin
+          const validAdmin = await User.findOne({ email, isAdmin: true });
+          if (!validAdmin) {
+              return res.status(404).json({ success: false, message: 'Admin not found!' });
+          }
+  
+          // Compare passwords
+          const validPassword = await bcryptjs.compare(password, validAdmin.password);
+          if (!validPassword) {
+              return res.status(401).json({ success: false, message: 'Wrong credentials!' });
+          }
+  
+          // Generate JWT token
+          const token = jwt.sign({ id: validAdmin._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  
+          // Remove password from response
+          const { password: hashedPassword, ...rest } = validAdmin._doc;
+  
+          // Set expiry time
+          const expiryDate = new Date(Date.now() + 3600000); // 1 hour
+  
+          // Set cookie
+         // Set cookie
+res.cookie('access_token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production' || true, // Set to true regardless of environment
+    sameSite: 'Lax', // Change to 'Lax' for development
+    expires: expiryDate,
+});
+          console.log('rest///',rest)
+          // Send success response
+// In your adminSignIn function - still set the cookie but also return the token
+return res.status(200).json({ success: true, admin: rest, token });  
+      } catch (error) {
+          console.error('Admin sign-in error:', error);
+          return res.status(500).json({ success: false, message: 'Internal Server Error' });
+      }
+  };
+  
